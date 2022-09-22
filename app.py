@@ -2,8 +2,10 @@ import pickle
 import numpy as np
 import pandas as pd
 import streamlit as st
+import xgboost
+from xgboost import XGBRegressor
 
-pipe = pickle.load(open('model/pipe.pkl', 'rb'))
+pipe = pickle.load(open('pipe.pkl', 'rb'))
 
 teams = [
  'Australia',
@@ -56,7 +58,7 @@ cities = ['Colombo',
 
 st.title("Cricket Score Predictor")
 
-col1, col2 = st.beta_columns(2)
+col1, col2 = st.columns(2)
 
 with col1:
     batting_team = st.selectbox("Select batting team", sorted(teams))
@@ -66,7 +68,7 @@ with col2:
 
 city = st.selectbox("Select city", sorted(cities))
 
-col3, col4, col5 = st.beta_columns(3)
+col3, col4, col5 = st.columns(3)
 
 with col3:
     current_score = st.number_input("Current Score")
@@ -80,4 +82,24 @@ with col5:
 last_five = st.number_input("Runs scored in last 5 overs")
 
 if st.button('Predict Score'):
-    pass
+    balls_left = 120 - (overs*6)
+    wickets_left = 10 - wickets
+    crr = current_score / overs
+    
+    input_data = pd.DataFrame({
+        'batting_team': [batting_team],
+        'bowling_team': [bowling_team], 
+        'city': city,
+        'current_score': [current_score],
+        'balls_left': [balls_left],
+        'wickets_left': [wickets_left],
+        'crr': [crr],
+        'last_five': [last_five]
+    })
+    
+    st.table(input_data)
+    
+    result = pipe.predict(input_data)
+    
+    st.header("Predicted Score - " +str(int(result[0])))
+    
