@@ -5,3 +5,4 @@ matplotlib
 seaborn
 streamlit==1.0.0
 xgboost==1.5.1
+gunicorn
